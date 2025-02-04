@@ -1,31 +1,14 @@
-# Stage 1: Build the React app
-FROM node:lts-alpine as build
-
-WORKDIR /app
-
-# Copy package.json and package-lock.json
+FROM node:lts-alpine As build
+COPY . /build
+WORKDIR /build
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy the rest of the application code
-COPY . .
-
-# Build the app for production
 RUN npm run build
 
-# Stage 2: Serve the app with Nginx
-FROM nginx:alpine
-
-# Copy the build files from the previous stage
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copy custom nginx configuration file (optional)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 80
+FROM nginx:1.27-alpine
+LABEL org="qtdevops" author="venkat"
+ARG USERNAME=venkat
+RUN adduser -D -h /test -s /bin/sh ${USERNAME}
+COPY --from=build --chown=${USERNAME}:${USERNAME} /build/test /usr/share/nginx/html
 EXPOSE 80
-
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD [ "nginx", "-g", "daemon off;" ]
