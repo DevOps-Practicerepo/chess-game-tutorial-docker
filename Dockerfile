@@ -25,6 +25,9 @@ ARG USERNAME=venkat
 # Create a non-root user with a home directory and shell
 RUN adduser -D -h /build -s /bin/sh ${USERNAME}
 
+# switch the default user to current user
+USER ${USERNAME}
+
 # Copy built files from the previous stage and set ownership
 COPY --from=build --chown=${USERNAME}:${USERNAME} /build/dist /usr/share/nginx/html
 
